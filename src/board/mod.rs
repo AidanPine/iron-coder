@@ -215,6 +215,7 @@ pub fn get_boards(boards_dir: &Path) -> Vec<Board> {
                 for file in files {
                     let file = file.expect("error reading file within board directory");
                     if file.path().extension().unwrap_or_default() == "toml" {
+                        println!("{}", file.path().display().to_string());
                         match Board::load_from_toml(&file.path()) {
                             Ok(mut board) => {
                                 let parent = file.path().parent().unwrap().canonicalize().unwrap();

@@ -1,9 +1,12 @@
 //! Title: Iron Coder App Module - Code Editor
 //! Description: Handles all the code editing functionality for the app.
 
+use core::borrow;
+use std::borrow::Borrow;
 use std::string::String;
 use std::fmt;
 
+use eframe::App;
 use log::info;
 
 use egui::Ui;
@@ -307,7 +310,7 @@ impl CodeEditor {
         let icons = icons_ref.clone();
         ui.horizontal(|ui| {
             let mut idx_to_remove: Option<usize> = None;
-            for (i, code_file) in self.tabs.iter().enumerate() {
+            for (i, code_file) in self.tabs.iter_mut().enumerate() {
                 // display the close icon
                 let x_icon = egui::widgets::ImageButton::new(
                     icons.get("quit_icon").unwrap().clone()
@@ -328,7 +331,7 @@ impl CodeEditor {
                         text = text.underline();
                     }
                 }
-                if !self.tabs[i].synced {
+                if !code_file.synced {
                     text = text.color(egui::Color32::RED);
                     if self.unsaved == true {
                         egui::Window::new("Unsaved Warning")
@@ -336,8 +339,16 @@ impl CodeEditor {
                         .collapsible(false)
                         .resizable(false)
                         .movable(true)
-                        .show(ctx, |ui| {ui.label("Please save changes before closing tab.")
-                    });
+                        .show(ctx, |ui| {
+                            ui.label("Save changes before closing?");
+                            if ui.button("Yes").clicked() {
+                                //self.tabs[i].save();
+                                //code_file.save().unwrap();
+                            }
+                            if ui.button("No").clicked() {
+                                //self.close_tab(idx_to_remove.unwrap(), ctx);
+                            }
+                        });
                     }
                 }
                 let label = Label::new(text).sense(Sense::click());
@@ -348,6 +359,7 @@ impl CodeEditor {
             }
 
             if idx_to_remove.is_some() {
+                
                 self.close_tab(idx_to_remove.unwrap(), ctx);
             }
         });
